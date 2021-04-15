@@ -17,8 +17,11 @@ for a in open("links.txt","r").read().split("\n"):
     try:
         print(a.strip() + "api/v1/entries/sgv?count="+str(historyCount))
         data = json.loads(req.get(a.strip() + "api/v1/entries/sgv?count="+str(historyCount),headers={"accept":"application/json"}).text)
-        if data != {}:
-            rawData.append(data)
+        parsedData = {
+            "link":a.strip(),
+            "data":data
+        }
+        rawData.append(parsedData)
         print("success")
     except Exception as err:
         print(err)
@@ -64,9 +67,10 @@ for a in formatedData:
             })
         
 scaler = widthInPixels / (historyCount * 5)
-    
+
 for i,data in enumerate(formatedData):
-        for b in rawData[i]:
+        print(rawData[i]["link"])
+        for b in rawData[i]["data"]:
             time = b["dateString"]
             time = ":".join([str(int(time.split("T")[1].replace("Z","").split(":")[:2][0])+2),time.split("T")[1].replace("Z","").split(":")[:2][1]])
             #print(time)
