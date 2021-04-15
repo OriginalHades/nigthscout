@@ -70,10 +70,8 @@ scaler = widthInPixels / (historyCount * 5)
 
 for i,data in enumerate(formatedData):
         print(rawData[i]["link"])
-        errors = []
         for b in rawData[i]["data"]:
-            try:
-                time = b["dateString"]
+                time = datetime.fromtimestamp(b["date"]/1000).strftime('%Y-%m-%dT%H:%M:%S.%f')
                 time = ":".join([str(int(time.split("T")[1].replace("Z","").split(":")[:2][0])+2),time.split("T")[1].replace("Z","").split(":")[:2][1]])
                 #print(time)
                 for j,c in enumerate(data):
@@ -85,10 +83,6 @@ for i,data in enumerate(formatedData):
                             "index":temp_data["index"],
                             "sgv":b["sgv"]
                         }
-            except Exception as err:
-                errors.append(err)
-        if errors != []:
-            print(errors)
         
 c = 0            
 for i in range(0,3*60):
