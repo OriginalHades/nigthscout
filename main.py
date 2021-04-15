@@ -16,7 +16,9 @@ historyCount = 36
 for a in open("links.txt","r").read().split("\n"):
     try:
         print(a.strip() + "api/v1/entries/sgv?count="+str(historyCount))
-        rawData.append(json.loads(req.get(a.strip() + "api/v1/entries/sgv?count="+str(historyCount),headers={"accept":"application/json"}).text))
+        data = json.loads(req.get(a.strip() + "api/v1/entries/sgv?count="+str(historyCount),headers={"accept":"application/json"}).text)
+        if data != {}:
+            rawData.append(data)
         print("success")
     except Exception as err:
         print(err)
