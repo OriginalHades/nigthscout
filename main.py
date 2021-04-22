@@ -28,6 +28,13 @@ for a in open("links.txt","r").read().split("\n"):
         
 #print("= " * 25) 
 
+def translate(value, leftMin, leftMax, rightMin, rightMax):
+    leftSpan = leftMax - leftMin
+    rightSpan = rightMax - rightMin
+    valueScaled = float(value - leftMin) / float(leftSpan)
+
+    return rightMin + (valueScaled * rightSpan)
+
 imageHeight = heightInPixels
 imageWidth = widthInPixels
 colorDiference = 20
@@ -35,8 +42,8 @@ colorDiference = 20
 img = Image.new('RGB', (imageWidth, imageHeight), color = 'black')
 
 draw = ImageDraw.Draw(img)
-draw.line((0,imageHeight - 3.9 * 18,imageWidth,imageHeight - 3.9 * 18), fill = (100,100,100),width=2)
-draw.line((0,imageHeight - 10 * 18,imageWidth,imageHeight - 10 * 18), fill = (100,100,100),width=2)
+draw.line((0,imageHeight - translate(3.9 * 18,40,400,0,imageHeight),imageWidth,imageHeight - translate(3.9 * 18,40,400,0,imageHeight)), fill = (100,100,100),width=2)
+draw.line((0,imageHeight - translate(10 * 18,40,400,0,imageHeight),imageWidth,imageHeight - translate(10 * 18,40,400,0,imageHeight)), fill = (100,100,100),width=2)
 
 fontSize = 10
 font = ImageFont.truetype("Roboto-Black.ttf", fontSize)
@@ -115,13 +122,16 @@ for data in formatedData:
     for b in data:
         if b["draw"]:
             dat += 1
-            if(b["sgv"] > 40):
-                if(last["sgv"] > 40):
-                    draw.line((int(last["index"]) * scaler,imageHeight - int(last["sgv"]),int(b["index"]) * scaler,imageHeight - int(b["sgv"])), fill=randomColor,width = 4)
-                    last = b
-                else:
-                    draw.line((int(b["index"]) * scaler,imageHeight - int(b["sgv"]),int(b["index"]) * scaler,imageHeight - int(b["sgv"])), fill=randomColor,width = 4)
-                    last = b
+            if(last["sgv"] > 40):
+                lastSgv = translate(last["sgv"],40,400,0,imageHeight)
+                sgv = translate(b["sgv"],40,400,0,imageHeight)
+                draw.line((int(last["index"]) * scaler,imageHeight - int(lastSgv),int(b["index"]) * scaler,imageHeight - int(sgv)), fill=randomColor,width = 4)
+                last = b
+            else:
+                sgv = translate(b["sgv"],40,400,0,imageHeight)
+                draw.line((int(b["index"]) * scaler,imageHeight - int(sgv),int(b["index"]) * scaler,imageHeight - int(sgv)), fill=randomColor,width = 4)
+                last = b
+
     #print(dat)
 img.save("image.jpg")
 #img.show()
