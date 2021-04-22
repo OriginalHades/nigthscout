@@ -69,13 +69,15 @@ for a in formatedData:
 scaler = widthInPixels / (historyCount * 5)
 
 for i,data in enumerate(formatedData):
-        print(rawData[i]["link"])
         for b in rawData[i]["data"]:
-                time = datetime.fromtimestamp(b["date"]/1000).strftime('%Y-%m-%dT%H:%M:%S.%f')
-                time = ":".join([str(int(time.split("T")[1].replace("Z","").split(":")[:2][0])+2),time.split("T")[1].replace("Z","").split(":")[:2][1]])
-                #print(time)
+                time = str(timedelta(seconds=b["date"]/1000))
+                time = time.split(" ")[2][:time.split(" ")[2].rfind(":")]
+                time = time.split(":")
+                time[0] = str(int(time[0])+2)
+                time = ":".join(time)
                 for j,c in enumerate(data):
                     if str(c["time"]) == str(time):
+                        print(time)
                         temp_data = data[j]
                         data[j] = {
                             "time":temp_data["time"],
