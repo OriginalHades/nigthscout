@@ -77,7 +77,6 @@ for i,data in enumerate(formatedData):
                 time = ":".join(time)
                 for j,c in enumerate(data):
                     if str(c["time"]) == str(time):
-                        print(time)
                         temp_data = data[j]
                         data[j] = {
                             "time":temp_data["time"],
