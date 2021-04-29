@@ -7,8 +7,10 @@ import os
 from datetime import datetime,timedelta
 
 
-widthInPixels = 1024
-heightInPixels = 300
+widthInPixels = 1400
+heightInPixels = 1024
+
+verticalOffset = 60
 
 rawData = []
 historyCount = 36
@@ -41,29 +43,44 @@ colorDiference = 20
 
 img = Image.new('RGB', (imageWidth, imageHeight), color = 'black')
 
-draw = ImageDraw.Draw(img)
-draw.line((0,imageHeight - translate(3.9 * 18,40,400,0,imageHeight),imageWidth,imageHeight - translate(3.9 * 18,40,400,0,imageHeight)), fill = (100,100,100),width=2)
-draw.line((0,imageHeight - translate(10 * 18,40,400,0,imageHeight),imageWidth,imageHeight - translate(10 * 18,40,400,0,imageHeight)), fill = (100,100,100),width=2)
-
 fontSize = 10
 font = ImageFont.truetype("Roboto-Black.ttf", fontSize)
-
-
-colorBlackList = []
-
-formatedData = []
-
-for a in rawData:
-    formatedData.append([])
 
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 
 (h, m, s) = current_time.split(':')
 currentTime = int(h) * 60 + int(m)
-#print(currentTime,3*60,current_time)
 
 scaler = widthInPixels / (3*60)
+
+draw = ImageDraw.Draw(img)
+draw.line((0,imageHeight - translate(3.9 * 18,40,400,0,imageHeight)-verticalOffset,imageWidth,imageHeight - translate(3.9 * 18,40,400,0,imageHeight)-verticalOffset), fill = (100,100,100),width=2)
+draw.line((0,imageHeight - translate(10 * 18,40,400,0,imageHeight)-verticalOffset,imageWidth,imageHeight - translate(10 * 18,40,400,0,imageHeight)-verticalOffset), fill = (100,100,100),width=2)
+
+draw.rectangle((0,0,imageWidth,imageHeight - translate(10 * 18,40,400,0,imageHeight)-verticalOffset), fill ="#331111")
+draw.rectangle((0,imageHeight - translate(3.9 * 18,40,400,0,imageHeight)-verticalOffset,imageWidth,imageHeight), fill ="#331111")
+
+for a in range(22):
+    draw.line((imageWidth-10,imageHeight - translate(a * 18,40,400,0,imageHeight)-verticalOffset,imageWidth,imageHeight - translate(a * 18,40,400,0,imageHeight)-verticalOffset), fill = (100,100,100),width=2)
+    draw.text((imageWidth-(fontSize*len(str(a)))-10,imageHeight - translate(a * 18,40,400,0,imageHeight)-verticalOffset-5,imageWidth),str(a),(255,255,255),font=font)
+
+c = 0            
+for i in range(0,3*60):
+    if c == 9:
+        c = 0
+        timeString = str(timedelta(minutes=currentTime-abs(i-180)))[:-3]
+        draw.line(((i*scaler),imageHeight,(i*scaler),imageHeight - 10), fill=(225,225,225),width = 2)
+        draw.text(((i*scaler)-((font.getsize(timeString)[0])/2), imageHeight - fontSize - 12),timeString,(255,255,255),font=font)
+    else:
+        c += 1    
+
+
+colorBlackList = [(0,0,0),(51,17,17)]
+formatedData = []
+
+for a in rawData:
+    formatedData.append([])
 
 for a in formatedData:
     for i in reversed(range(0,3*60)):
@@ -73,8 +90,6 @@ for a in formatedData:
             "index":abs(i-180)
             })
         
-scaler = widthInPixels / (historyCount * 5)
-
 for i,data in enumerate(formatedData):
         for b in rawData[i]["data"]:
                 time = str(timedelta(seconds=b["date"]/1000))
@@ -91,16 +106,6 @@ for i,data in enumerate(formatedData):
                             "index":temp_data["index"],
                             "sgv":b["sgv"]
                         }
-        
-c = 0            
-for i in range(0,3*60):
-    if c == 9:
-        c = 0
-        timeString = str(timedelta(minutes=currentTime-abs(i-180)))[:-3]
-        draw.line(((i*scaler),imageHeight,(i*scaler),imageHeight - 10), fill=(225,225,225),width = 2)
-        draw.text(((i*scaler)-((font.getsize(timeString)[0])/2), imageHeight - fontSize - 12),timeString,(255,255,255),font=font)
-    else:
-        c += 1    
            
 #draw.line(0,(i*scaler),imageHeight - int(b["sgv"]), fill=randomColor,width = 4)
 
@@ -109,7 +114,8 @@ for data in formatedData:
                 randomColor = (random.randrange(0,225),random.randrange(0,225),random.randrange(0,225))
                 if not randomColor in colorBlackList:
                     for i in range(0,colorDiference):
-                        colorBlackList.append((randomColor[0]+i-(colorDiference/2),randomColor[1]+i-(colorDiference/2),randomColor[2]+i-(colorDiference/2)))
+                        colorBlackList.append((int(randomColor[0]+i-(colorDiference/2)),int(randomColor[1]+i-(colorDiference/2)),int(randomColor[2]+i-(colorDiference/2))))
+                    
                     break
                 
     #print(randomColor)
@@ -125,11 +131,11 @@ for data in formatedData:
             if(last["sgv"] > 40):
                 lastSgv = translate(last["sgv"],40,400,0,imageHeight)
                 sgv = translate(b["sgv"],40,400,0,imageHeight)
-                draw.line((int(last["index"]) * scaler,imageHeight - int(lastSgv),int(b["index"]) * scaler,imageHeight - int(sgv)), fill=randomColor,width = 4)
+                draw.line((int(last["index"]) * scaler,imageHeight - int(lastSgv) - verticalOffset,int(b["index"]) * scaler,imageHeight - int(sgv) - verticalOffset), fill=randomColor,width = 4)
                 last = b
             else:
                 sgv = translate(b["sgv"],40,400,0,imageHeight)
-                draw.line((int(b["index"]) * scaler,imageHeight - int(sgv),int(b["index"]) * scaler,imageHeight - int(sgv)), fill=randomColor,width = 4)
+                draw.line((int(b["index"]) * scaler,imageHeight - int(sgv) - verticalOffset,int(b["index"]) * scaler,imageHeight - int(sgv) - verticalOffset), fill=randomColor,width = 4)
                 last = b
 
     #print(dat)
